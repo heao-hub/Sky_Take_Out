@@ -8,6 +8,7 @@ import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.dto.PasswordEditDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
@@ -17,6 +18,7 @@ import com.sky.result.PageResult;
 import com.sky.service.EmployeeService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.quartz.LocalDataSourceJobStore;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -82,7 +84,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         String password = DigestUtils.md5DigestAsHex("123456".getBytes());
         employee.setPassword(password);
 
-        //设置创建时间
+        /*//设置创建时间
         employee.setCreateTime(LocalDateTime.now());
 
         //设置修改时间
@@ -90,7 +92,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         //设置当前记录创建人id和修改人id
         employee.setCreateUser(BaseContext.getCurrentId());
-        employee.setUpdateUser(BaseContext.getCurrentId());
+        employee.setUpdateUser(BaseContext.getCurrentId());*/
 
         employeeMapper.insert(employee);
 
@@ -113,4 +115,77 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         return new PageResult(total,records);
     }
+
+    /**
+     * 启用禁用员工账号
+     * @param status
+     * @param id
+     */
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        Employee employee = Employee.builder()
+                .id(id)
+                .status(status)
+                .build();
+
+        employeeMapper.update(employee);
+    }
+
+    /**
+     * 根据id查询员工信息
+     * @param id
+     * @return
+     */
+    @Override
+    public Employee getById(Long id) {
+
+        Employee emp = employeeMapper.selectById(id);
+        //不显示密码
+        emp.setPassword("****");
+
+        return emp;
+    }
+
+    /**
+     * 修改员工信息
+     * @param employeeDTO
+     */
+    @Override
+    public void updateEmp(EmployeeDTO employeeDTO) {
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO,employee);
+       /* employee.setUpdateUser(BaseContext.getCurrentId());
+        employee.setUpdateTime(LocalDateTime.now());*/
+        employeeMapper.update(employee);
+
+    }
+
+    /**
+     * 修改密码
+     * @param passwordEditDTO
+     */
+
+    @Override
+    public void updatePassword(PasswordEditDTO passwordEditDTO) {
+
+        Employee employee = employeeMapper.selectById(passwordEditDTO.getEmpId());
+
+        if(employee == null){
+            //账号不存在
+            throw new AccountLockedException(MessageConstant.ACCOUNT_NOT_FOUND);
+        }
+
+        String oldPassword = passwordEditDTO.getOldPassword();
+        oldPassword = DigestUtils.md5DigestAsHex(oldPassword.getBytes());
+        if(!oldPassword.equals(employee.getPassword())){
+            throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
+        }else{
+            String newPassword = DigestUtils.md5DigestAsHex(passwordEditDTO.getNewPassword().getBytes());
+            employee.setPassword(newPassword);
+            /*employee.setUpdateTime(LocalDateTime.now());
+            employee.setUpdateUser(BaseContext.getCurrentId());*/
+            employeeMapper.update(employee);
+        }
+    }
+
 }

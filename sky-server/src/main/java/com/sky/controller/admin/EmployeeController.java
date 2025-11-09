@@ -4,6 +4,7 @@ import com.sky.constant.JwtClaimsConstant;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.dto.PasswordEditDTO;
 import com.sky.entity.Employee;
 import com.sky.properties.JwtProperties;
 import com.sky.result.PageResult;
@@ -26,7 +27,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/employee")
 @Slf4j
-@Api(tags = "员工登录接口")
+@Api(tags = "员工管理接口")
 public class EmployeeController {
 
     @Autowired
@@ -105,4 +106,67 @@ public class EmployeeController {
 
             return Result.success(result);
     }
+
+    /**
+     * 启用禁用员工账号
+     * @param status
+     * @param id
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    @ApiOperation("启用禁用员工账号")
+    public Result startOrStop(@PathVariable Integer status,Long id){
+        log.info("启用禁用员工账号{}，状态{}",id,status);
+
+        employeeService.startOrStop(status,id);
+
+        return Result.success();
+    }
+
+    /**
+     * 根据id查询员工信息
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    @ApiOperation("根据id查询员工信息")
+    public Result<Employee> getById(@PathVariable Long id){
+        log.info("根据id查询员工信息：{}",id);
+
+        Employee emp = employeeService.getById(id);
+
+        return Result.success(emp);
+    }
+
+    /**
+     * 修改员工信息
+     * @param employeeDTO
+     * @return
+     */
+
+    @PutMapping
+    @ApiOperation("修改员工信息")
+    public Result updateEmp(@RequestBody EmployeeDTO employeeDTO){
+        log.info("修改员工信息，{}",employeeDTO);
+
+        employeeService.updateEmp(employeeDTO);
+
+        return Result.success();
+    }
+
+    /**
+     * 修改密码
+     * @param passwordEditDTO
+     * @return
+     */
+    @PutMapping("/editPassword")
+    @ApiOperation("修改密码")
+    public Result updatePassword(@RequestBody PasswordEditDTO passwordEditDTO){
+            log.info("修改密码，{}",passwordEditDTO);
+
+            employeeService.updatePassword(passwordEditDTO);
+
+            return Result.success();
+    }
+
 }
