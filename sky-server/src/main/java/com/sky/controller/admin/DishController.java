@@ -100,12 +100,34 @@ public class DishController {
         return Result.success();
     }
 
+    /**
+     * 启用停用菜品
+     * @param status
+     * @param id
+     * @return
+     */
     @PostMapping("/status/{status}")
+    @ApiOperation("启用停用菜品")
     public Result updateStatus(@PathVariable Integer status,Long id){
         log.info("修改菜品状态，启用停用。{}{}",status,id);
 
         dishService.updateStatus(status,id);
 
         return Result.success();
+    }
+
+    /**
+     * 根据分类id查询菜品
+     * @param categoryId
+     * @return
+     */
+    @ApiOperation("根据分类id查询菜品")
+    @GetMapping("/list")
+    public Result<List<Dish>> listByCategoryId(Long categoryId){
+        log.info("根据分类id查询菜品：{}",categoryId);
+
+        List<Dish> dish = dishService.listByCategoryId(categoryId);
+
+        return Result.success(dish);
     }
 }
