@@ -177,7 +177,7 @@ public class DishServiceImpl implements DishService {
      * @return
      */
     @Override
-    public List<DishVO> listVOByCategoryId(Long categoryId) {
+    public List<DishVO> listWithFlavorByCategoryId(Long categoryId) {
         Dish dish = Dish.builder()
                 .categoryId(categoryId)
                 .status(StatusConstant.ENABLE)
