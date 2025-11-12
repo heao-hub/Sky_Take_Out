@@ -4,6 +4,7 @@ import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
 import com.sky.entity.Category;
 import com.sky.result.PageResult;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,6 +42,7 @@ public interface CategoryService {
      * @param type
      * @return
      */
+    @Select("select * from category where type = #{type}")
     List<Category> listByType(Integer type);
 
     /**

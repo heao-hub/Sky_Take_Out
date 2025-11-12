@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -135,8 +136,6 @@ public class DishServiceImpl implements DishService {
             });
             dishFlavorMapper.insertBatch(flavors);
         }
-
-
     }
 
     /**
@@ -155,15 +154,45 @@ public class DishServiceImpl implements DishService {
 
     /**
      * 根据分类id查询菜品
+     * @param categoryId name
+     * @return
+     */
+    @Override
+    public List<Dish> listByCategoryId(Long categoryId,String name) {
+
+        Dish dish = Dish.builder()
+                .categoryId(categoryId)
+                .name(name)
+                .status(StatusConstant.ENABLE)
+                .build();
+
+        List<Dish> dishes = dishMapper.listByCategoryId(dish);
+
+        return dishes;
+    }
+
+    /**
+     * 根据分类id查询菜品
      * @param categoryId
      * @return
      */
     @Override
-    public List<Dish> listByCategoryId(Long categoryId) {
+    public List<DishVO> listVOByCategoryId(Long categoryId) {
+        Dish dish = Dish.builder()
+                .categoryId(categoryId)
+                .status(StatusConstant.ENABLE)
+                .build();
 
-        List<Dish> dishes = dishMapper.listByCategoryId(categoryId);
-
-        return dishes;
+        List<Dish> dishes = dishMapper.listByCategoryId(dish);
+        List<DishVO> dishVOs = new ArrayList<>();
+        for (Dish dish1 : dishes) {
+            List<DishFlavor> flavorsByDishId = dishFlavorMapper.getFlavorsByDishId(dish1.getId());
+            DishVO dishVO = new DishVO();
+            BeanUtils.copyProperties(dish1,dishVO);
+            dishVO.setFlavors(flavorsByDishId);
+            dishVOs.add(dishVO);
+        }
+        return dishVOs;
     }
 
 
