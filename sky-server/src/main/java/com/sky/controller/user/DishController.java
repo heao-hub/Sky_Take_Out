@@ -40,7 +40,6 @@ public class DishController {
 
         // 构造redis中存放菜品数据的key 规则：“dish_"+分类id
         String key = "dish_"+categoryId;
-
         // 查询redis中 是否存在菜品数据
         List<DishVO> dishes = (List<DishVO>) redisTemplate.opsForValue().get(key);
 

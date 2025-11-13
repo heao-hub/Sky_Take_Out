@@ -123,7 +123,7 @@ public class WeChatPayUtil {
     }
 
     /**
-     * jsapi下单
+     * jsapi下单 构造向微信后台发送的请求的参数
      *
      * @param orderNum    商户订单号
      * @param total       总金额
