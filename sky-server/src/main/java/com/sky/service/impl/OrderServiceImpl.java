@@ -21,6 +21,7 @@ import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.webSocket.WebSocketServer;
 import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -65,6 +66,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Value("${sky.baidu.ak}")
     private String ak;
+
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     /**
      * 用户下单
@@ -161,6 +165,8 @@ public class OrderServiceImpl implements OrderService {
         log.info("跳过微信支付，支付成功！");
         paySuccess(ordersPaymentDTO.getOrderNumber());
 
+
+
         return new OrderPaymentVO();
     }
 
@@ -183,6 +189,23 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         orderMapper.update(orders);
+
+
+        // 用户支付成功，服务端给管理端发送来单提醒
+
+        /*
+            服务端向客户端发送的消息是json格式的，字段包括：type,orderId,content
+            type为消息类型：1表示来单提醒，2表示用户催单
+            orderId为订单id
+            content为消息内容
+         */
+        Map<String , Object> map = new HashMap<>();
+        map.put("type",1); // type = 1表示当前提醒为用户下单提醒
+        map.put("orderId",ordersDB.getId());
+        map.put("content","订单号"+outTradeNo);
+        String json = JSONObject.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
+
     }
 
 
@@ -498,6 +521,29 @@ public class OrderServiceImpl implements OrderService {
         }else{
             throw new OrderBusinessException((MessageConstant.ORDER_STATUS_ERROR));
         }
+    }
+
+    /**
+     * 客户催单
+     * @param id
+     */
+    @Override
+    public void reminder(Long id) {
+        Orders orders = new Orders();
+        orders.setId(id);
+
+        Orders orderDB = orderMapper.getById(id);
+        if(orderDB == null){
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        // 通过webSocketServer向客户端浏览器发送客户催单信息
+        Map<String,Object> map = new HashMap<>();
+        map.put("type",2);  //type为2，表示当前消息是客户催单
+        map.put("orderId",id);
+        map.put("content","订单号"+orderDB.getNumber());
+        String jsonString = JSONObject.toJSONString(map);
+        webSocketServer.sendToAllClient(jsonString);
     }
 
 

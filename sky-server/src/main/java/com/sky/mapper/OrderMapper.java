@@ -6,6 +6,9 @@ import com.sky.entity.Orders;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Mapper
 public interface OrderMapper {
 
@@ -43,4 +46,13 @@ public interface OrderMapper {
      */
     @Select("select * from orders where id = #{id}")
     Orders getById(Long id);
+
+    /**
+     * 查询超时未支付订单
+     * @param pendingPayment
+     * @param time
+     * @return
+     */
+    @Select("select * from orders where status = #{status} and order_time < #{time} ")
+    List<Orders> getByStatusAndOrderTime(Integer status, LocalDateTime time);
 }
