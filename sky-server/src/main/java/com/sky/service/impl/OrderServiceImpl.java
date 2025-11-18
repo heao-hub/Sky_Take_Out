@@ -358,7 +358,6 @@ public class OrderServiceImpl implements OrderService {
         // 部分订单状态，需要额外返回订单菜品信息 ,将Orders转换为OrderVO
         List<OrderVO> orderVOS = getOrderVOLists(orders.getResult());
 
-
         return new PageResult(orders.getTotal(),orderVOS);
     }
 
@@ -370,9 +369,11 @@ public class OrderServiceImpl implements OrderService {
     public OrderStatisticsVO statistics() {
 
 
-        int toBeConfirmedCount = orderDetailMapper.getCountByStatus(Orders.TO_BE_CONFIRMED);
-        int confirmedCount = orderDetailMapper.getCountByStatus(Orders.CONFIRMED);
-        int DeliveryInProgressCount = orderDetailMapper.getCountByStatus(Orders.DELIVERY_IN_PROGRESS);
+        int toBeConfirmedCount = orderMapper.getCountByStatus(Orders.TO_BE_CONFIRMED);
+        int confirmedCount = orderMapper.getCountByStatus(Orders.CONFIRMED);
+        int DeliveryInProgressCount = orderMapper.getCountByStatus(Orders.DELIVERY_IN_PROGRESS);
+        int completedCount = orderMapper.getCountByStatus(Orders.COMPLETED);
+        int cancelCount = orderMapper.getCountByStatus(Orders.CANCELLED);
 
         OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
         orderStatisticsVO.setToBeConfirmed(toBeConfirmedCount);

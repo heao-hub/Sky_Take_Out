@@ -22,11 +22,5 @@ public interface OrderDetailMapper {
     @Select("select * from order_detail where order_id = #{orderId}")
     List<OrderDetail> getByOrderId(Long orderId);
 
-    /**
-     * 统计不同状态的订单数量
-     * @param statusValue
-     * @return
-     */
-    @Select("select count(*) from orders where status = #{status}")
-    int getCountByStatus(int status);
+
 }

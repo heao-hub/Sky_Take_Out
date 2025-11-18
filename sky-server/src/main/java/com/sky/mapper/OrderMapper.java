@@ -1,6 +1,7 @@
 package com.sky.mapper;
 
 import com.github.pagehelper.Page;
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import org.apache.ibatis.annotations.Mapper;
@@ -8,6 +9,7 @@ import org.apache.ibatis.annotations.Select;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface OrderMapper {
@@ -49,10 +51,39 @@ public interface OrderMapper {
 
     /**
      * 查询超时未支付订单
-     * @param pendingPayment
+     * @param status
      * @param time
      * @return
      */
     @Select("select * from orders where status = #{status} and order_time < #{time} ")
     List<Orders> getByStatusAndOrderTime(Integer status, LocalDateTime time);
+
+    /**
+     * 统计不同状态的订单数量
+     * @param status
+     * @return
+     */
+    @Select("select count(*) from orders where status = #{status}")
+    int getCountByStatus(int status);
+
+    /**
+     * 营业额统计
+     * @param map
+     * @return
+     */
+    Double getTurnoverByMap(Map<String, Object> map);
+
+    /**
+     * 订单数统计
+     * @param map
+     * @return
+     */
+    Integer getOrderCountByMap(Map<String, Object> map);
+
+    /**
+     * 查询销量前十的菜品
+     * @param map
+     * @return
+     */
+    List<GoodsSalesDTO> getSalesTop10(Map<String, Object> map);
 }

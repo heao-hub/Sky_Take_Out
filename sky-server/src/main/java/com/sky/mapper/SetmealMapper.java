@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 套餐数据层
@@ -67,4 +68,11 @@ public interface SetmealMapper {
      */
     @Select("select * from setmeal where category_id = #{categoryId}")
     List<Setmeal> listByCategoryId(Long categoryId);
+
+    /**
+     * 动态查询订单数量
+     * @param map
+     * @return
+     */
+    Integer getCountByMap(Map<String, Object> map);
 }
